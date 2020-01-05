@@ -7,11 +7,14 @@ Change levels of screen backlight and audio volume in the CLI.
 Installation
 ------------
 
-First you need to install Rust:
+This tool is a wrapper around `amixer` and `xbacklight` so you should install
+them first.
+
+Then you should install Rust:
 
     $ curl https://sh.rustup.rs -sSf | sh
 
-Then you can install the latest stable version with cargo:
+And finally you can install the latest stable version with cargo:
 
     $ cargo install level
 
