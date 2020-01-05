@@ -28,7 +28,8 @@ Or the development version by fetching the git repository:
 Usage
 -----
 
-Use arrow keys to update screen backlight or audio volume:
+Use arrow keys to update screen backlight or audio volume, and the escape key
+to exit.
 
 ```
 $ level screen
