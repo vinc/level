@@ -3,6 +3,11 @@ Level
 
 Change levels of screen backlight and audio volume in the CLI.
 
+```
+$ level screen
+Screen [########################------------]  67%
+```
+
 
 Installation
 ------------
@@ -30,11 +35,6 @@ Usage
 
 Use arrow keys to update screen backlight or audio volume, and the escape key
 to exit.
-
-```
-$ level screen
-Screen [########################------------]  67%
-```
 
 
 License
