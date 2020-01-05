@@ -1,10 +1,11 @@
 [package]
 name = "level"
+description = "Change levels of screen backlight and audio volume in the CLI"
 version = "0.1.0"
 authors = ["Vincent Ollivier <v@vinc.cc>"]
+repository = "https://github.com/vinc/level"
+license = "MIT"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 indicatif = "0.13.0"
