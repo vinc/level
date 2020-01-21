@@ -1,7 +1,7 @@
 [package]
 name = "level"
 description = "Change levels of screen backlight and audio volume in the CLI"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Vincent Ollivier <v@vinc.cc>"]
 repository = "https://github.com/vinc/level"
 license = "MIT"
