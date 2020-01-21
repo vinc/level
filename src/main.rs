@@ -36,42 +36,57 @@ fn load_bar(name: &str, level: u64) -> ProgressBar {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() != 2 {
-        println!("Usage: level <audio|screen>");
+    if !(2..4).contains(&args.len()) {
+        println!("Usage: level <audio|screen> [percent]");
         return
     }
 
     let device = load_device(&args[1]);
-    let mut level = device.level();
 
-    let stdin = io::stdin();
-    let mut stdout = io::stdout().into_raw_mode().unwrap();
-    write!(stdout, "{}", termion::cursor::Hide).unwrap();
-    stdout.lock().flush().unwrap();
-
-    let bar = load_bar(&device.name(), level);
-
-    for key in stdin.keys() {
-        match key.unwrap() {
-            Key::Char('q') | Key::Ctrl('c') | Key::Esc => {
-                break;
-            },
-            Key::Left | Key::Down => {
-                if level > 0 {
-                    level -= 1;
+    if args.len() == 3 {
+        match args[2].parse() {
+            Ok(level) => {
+                if level <= 100 {
+                    device.set_level(level).join().expect("Error while setting level");
+                } else {
+                    println!("Could not set {} level to {}%", device.name().to_lowercase(), level);
                 }
             },
-            Key::Right | Key::Up => {
-                if level < 100 {
-                    level += 1;
-                }
-            },
-            _ => {},
+            Err(_) => {
+                println!("Could not parse {} level", device.name().to_lowercase());
+            }
         }
-        bar.set_position(level);
-        device.set_level(level);
-    }
+    } else {
+        let mut level = device.level();
+        let stdin = io::stdin();
+        let mut stdout = io::stdout().into_raw_mode().unwrap();
+        write!(stdout, "{}", termion::cursor::Hide).unwrap();
+        stdout.lock().flush().unwrap();
 
-    bar.abandon();
-    write!(stdout, "{}", termion::cursor::Show).unwrap();
+        let bar = load_bar(&device.name(), level);
+
+        for key in stdin.keys() {
+            match key.unwrap() {
+                Key::Char('q') | Key::Ctrl('c') | Key::Esc => {
+                    break;
+                },
+                Key::Left | Key::Down => {
+                    if level > 0 {
+                        level -= 1;
+                    }
+                },
+                Key::Right | Key::Up => {
+                    if level < 100 {
+                        level += 1;
+                    }
+                },
+                _ => {},
+            }
+            bar.set_position(level);
+            device.set_level(level);
+        }
+
+        bar.abandon();
+        write!(stdout, "{}", termion::cursor::Show).unwrap();
+    }
 }

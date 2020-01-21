@@ -1,6 +1,6 @@
 use crate::device::Device;
 use std::process::Command;
-use std::thread;
+use std::thread::JoinHandle;
 
 pub struct Screen;
 
@@ -27,11 +27,11 @@ impl Device for Screen {
         output[0..n].parse().unwrap()
     }
 
-    fn set_level(&self, level: u64) {
-        thread::spawn(move || {
+    fn set_level(&self, level: u64) -> JoinHandle<()> {
+        std::thread::spawn(move || {
             Command::new("/usr/bin/xbacklight").
                 arg("-set").arg(level.to_string()).
                 output().expect("backlight not installed");
-        });
+        })
     }
 }

@@ -1,6 +1,6 @@
 use crate::device::Device;
 use std::process::Command;
-use std::thread;
+use std::thread::JoinHandle;
 
 pub struct Audio;
 
@@ -31,11 +31,11 @@ impl Device for Audio {
         output[a..b].parse().unwrap()
     }
 
-    fn set_level(&self, level: u64) {
-        thread::spawn(move || {
+    fn set_level(&self, level: u64) -> JoinHandle<()> {
+        std::thread::spawn(move || {
             Command::new("/usr/bin/amixer").
                 arg("set").arg("Master").arg(format!("{}%", level)).
                 output().expect("amixer not installed");
-        });
+        })
     }
 }
