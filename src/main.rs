@@ -15,8 +15,8 @@ use termion;
 
 fn load_device(name: &str) -> Box<dyn Device> {
     match name {
-        "Audio" | "audio" => Box::new(Audio::new()),
-        "Screen" | "screen" => Box::new(Screen::new()),
+        "a" | "audio" => Box::new(Audio::new()),
+        "s" | "screen" => Box::new(Screen::new()),
         _ => panic!("wrong device"),
     }
 }
@@ -34,14 +34,23 @@ fn load_bar(name: &str, level: u64) -> ProgressBar {
     bar
 }
 
+fn print_usage() {
+    println!("Usage: level [<audio|screen>] [percent]");
+}
+
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if !(2..4).contains(&args.len()) {
-        println!("Usage: level <audio|screen> [percent]");
-        return
+    let mut show_usage = false;
+    let args: Vec<String> = std::env::args().filter(|arg| {
+        if arg == "--help" {
+            show_usage = true;
+        }
+        !arg.starts_with("--")
+    }).collect();
+    if show_usage || !(1..4).contains(&args.len()) {
+        return print_usage();
     }
 
-    let device = load_device(&args[1]);
+    let mut device = load_device(if args.len() == 1 { "audio" } else { &args[1] });
 
     if args.len() == 3 {
         match args[2].parse() {
@@ -66,21 +75,40 @@ fn main() {
         let bar = load_bar(&device.name(), level);
 
         for key in stdin.keys() {
-            match key.unwrap() {
+            level = match key.unwrap() {
                 Key::Char('q') | Key::Ctrl('c') | Key::Esc => {
                     break;
                 },
+                Key::Char('^') => {
+                    0
+                },
+                Key::Char('$') => {
+                    100
+                },
+                Key::Char(' ') => {
+                    let device_name = if device.name() == "Audio" { "screen" } else { "audio" };
+                    device = load_device(device_name);
+                    bar.set_message(&device.name());
+                    device.level()
+                },
                 Key::Left | Key::Down => {
-                    if level > 0 {
-                        level -= 1;
-                    }
+                    level - std::cmp::min(level, 1)
                 },
                 Key::Right | Key::Up => {
-                    if level < 100 {
-                        level += 1;
-                    }
+                    level + 1
                 },
-                _ => {},
+                Key::PageDown => {
+                    level - std::cmp::min(level, 10)
+                },
+                Key::PageUp => {
+                    level + 10
+                },
+                _ => {
+                    level
+                },
+            };
+            if level > 100 {
+                level = 100;
             }
             bar.set_position(level);
             device.set_level(level);
